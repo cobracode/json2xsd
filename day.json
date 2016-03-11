@@ -1,0 +1,21 @@
+{
+    "day": {
+        "julianDate": {
+            "type": "double",
+            "range": "0.0 to 30000000.0",
+            "whitespace": "collapse"
+        }, "dayNum": {
+            "type": "int",
+            "range": "1 to 9",
+            "whitespace": "collapse"
+        }, "attitudeNum": {
+            "type": "int",
+            "range": "1 to 9",
+            "whitespace": "collapse"
+        }, "lifePathNum": {
+            "type": "int",
+            "range": "1 to 9",
+            "whitespace": "collapse"
+        }
+    }
+}
