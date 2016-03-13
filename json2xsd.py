@@ -1,6 +1,7 @@
 # coding: utf-8
 # Meant to be run with Python 3
 import json
+import subprocess
 from collections import OrderedDict
 
 
@@ -113,6 +114,8 @@ def getRestrictions(elementDict):
 
     for type in restrictionTypes:
         if type in elementDict:
+            xsdType = type
+
             if type == 'whitespace':
                 xsdType = 'whiteSpace'
 
@@ -145,8 +148,9 @@ if '__main__' == __name__:
     try:
         # Read JSON and write XSD
         writeXSD('schema.xsd', getJson('schema.json'))
+
+        # Run XJC tool to generate Java POJOs
+        subprocess.call(['xjc', '-verbose', '-readOnly', 'schema.xsd'])
     except BaseException as e:
         # Handle uncaught exceptions
         print('Error: %s' % e)
-
-    # Run XJC tool to generate Java POJOs
