@@ -2,7 +2,11 @@
 # Meant to be run with Python 3
 import json
 
+
 INDENT = 2*' '
+INDENT_CLASS = INDENT
+INDENT_ELEMENT = 2*INDENT
+
 
 
 
@@ -10,7 +14,8 @@ def getJson(filename):
     print('Reading JSON from file: %s' % filename)
     return json.load(open(filename))
 
-    
+
+
 def writeXSD(filename, jsonData):
     xsd = open(filename, 'w')
     
@@ -19,6 +24,7 @@ def writeXSD(filename, jsonData):
     writeFooter(xsd)
     
     xsd.close()
+
 
 
 def writeClasses(outputFile, jsonData):
@@ -33,19 +39,24 @@ def writeClass(outputFile, className, classDict):
     print('Writing class: %s' % className)
     
     outputFile.write('%s<xs:complexType name="%s">\n' % (INDENT, className))
-    outputFile.write('%s<xs:sequence>\n' % (2*INDENT))
+    outputFile.write('%s<xs:sequence>\n' % INDENT_CLASS)
     
     # Write each element (class attribute)
     for element in classDict.keys():
         writeElement(outputFile, element, classDict[element])
     
-    outputFile.write('%s</xs:sequence>\n' % (2*INDENT))
+    outputFile.write('%s</xs:sequence>\n' % INDENT_CLASS)
     outputFile.write('%s</xs:complexType>\n' % INDENT)
         
     
     
 def writeElement(outputFile, elementName, elementDict):
     print('Writing element: %s' % elementName)
+    
+    outputFile.write('%s<xs:element name="%s">\n' % (INDENT_ELEMENT, elementName))
+    outputFile.write('%s</xs:element>\n' % INDENT_ELEMENT)
+    
+    print(elementDict)
     
     
     
