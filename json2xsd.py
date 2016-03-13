@@ -1,18 +1,21 @@
 # coding: utf-8
 # Meant to be run with Python 3
 import json
+from collections import OrderedDict
 
 
 INDENT = 2*' '
-INDENT_CLASS = INDENT
-INDENT_ELEMENT = 2*INDENT
 
+INDENTS = {'CLASS': 1*INDENT,
+           'SEQUENCE': 2*INDENT,
+           'ELEMENT': 3*INDENT,
+           'SIMPLETYPE': 4*INDENT}
 
 
 
 def getJson(filename):
     print('Reading JSON from file: %s' % filename)
-    return json.load(open(filename))
+    return json.load(open(filename), object_pairs_hook=OrderedDict)
 
 
 
@@ -38,25 +41,43 @@ def writeClasses(outputFile, jsonData):
 def writeClass(outputFile, className, classDict):
     print('Writing class: %s' % className)
     
-    outputFile.write('%s<xs:complexType name="%s">\n' % (INDENT, className))
-    outputFile.write('%s<xs:sequence>\n' % INDENT_CLASS)
+    outputFile.write('%s<xs:complexType name="%s">\n' % (INDENTS['CLASS'], className))
+    outputFile.write('%s<xs:sequence>\n' % INDENTS['SEQUENCE'])
     
     # Write each element (class attribute)
     for element in classDict.keys():
         writeElement(outputFile, element, classDict[element])
     
-    outputFile.write('%s</xs:sequence>\n' % INDENT_CLASS)
-    outputFile.write('%s</xs:complexType>\n' % INDENT)
+    outputFile.write('%s</xs:sequence>\n' % INDENTS['SEQUENCE'])
+    outputFile.write('%s</xs:complexType>\n' % INDENTS['CLASS'])
         
     
     
 def writeElement(outputFile, elementName, elementDict):
     print('Writing element: %s' % elementName)
     
-    outputFile.write('%s<xs:element name="%s">\n' % (INDENT_ELEMENT, elementName))
-    outputFile.write('%s</xs:element>\n' % INDENT_ELEMENT)
+    occurs = elementDict['occurs'].split(',');
     
-    print(elementDict)
+    try:
+        minOccurs = occurs[0]
+    except IndexError:
+        minOccurs = 0
+        
+    try:
+        maxOccurs = occurs[1]
+    except IndexError:
+        maxOccurs = 1
+
+    print('occurs: %s' % occurs)
+    print('min: %s; max: %s' % (minOccurs, maxOccurs))
+    
+    outputFile.write('%s<xs:element name="%s" minOccurs="%s" maxOccurs="%s">\n' % (INDENTS['ELEMENT'], elementName, minOccurs, maxOccurs))
+    outputFile.write('%s<xs:simpleType>\n' % INDENTS['SIMPLETYPE'])
+    outputFile.write('%s</xs:simpleType>\n' % INDENTS['SIMPLETYPE'])
+    
+    outputFile.write('%s</xs:element>\n' % INDENTS['ELEMENT'])
+    
+    #print(elementDict)
     
     
     
@@ -76,33 +97,5 @@ def writeFooter(outputFile):
 if '__main__' == __name__:
     # Read JSON and write XSD
     writeXSD('newday.xsd', getJson('day.json'))
-    
+
     # Run XJC tool to generate Java POJOs
-
-
-# import logging
-# import os
-# import subprocess
-
-# # Define environment variable names
-# MUSIC_DIR_VAR = 'MUSIC'
-
-# # Misc
-# LOG_FILE = 'getSongs.log'
-# SONG_FILE = 'songs.txt'
-
-# MUSIC_DIR = ''
-# YMP3 = 'youtube-dl -w --no-post-overwrites --extract-audio --audio-format mp3 --no-mtime -i -o '
-# YUPDATE = 'sudo youtube-dl -U'
-
-
-# def getEnvVars():
-  # global MUSIC_DIR
-  
-  # try:
-    # MUSIC_DIR = os.environ[MUSIC_DIR_VAR]
-    # logging.debug('Env ' + MUSIC_DIR_VAR + ': \'' + MUSIC_DIR + '\'')
-  # except KeyError as e:
-    # raise KeyError("Could not get environment variable: %s" % e)
-  # except BaseError as e:
-    # raise BaseError("Unexpected error while getting environment variables: %s" % e)
